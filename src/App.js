@@ -1,23 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import { Link } from "react-router-dom";
+
+import { useQuery, useMutation, gql } from "@apollo/client";
+
+const POST_QUERY = gql`
+  query getAllPosts {
+    posts {
+      id
+      title
+    }
+  }
+`;
+const DELETE_POST = gql`
+  mutation deletePost($postId: Int!) {
+    deletePost(id: $postId)
+  }
+`;
 
 function App() {
+  console.log("app");
+  const { data, loading, error, refetch } = useQuery(POST_QUERY);
+  const [deldeldel] = useMutation(DELETE_POST);
+
+  const deleteClick = (id) => {
+    deldeldel({ variables: { postId: Number(id) } });
+    refetch();
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {data ? (
+        <ul>
+          {data.posts.map((d) => (
+            <li key={d.id}>
+              <span>{d.id} </span>
+              <Link to={`/book/${d.id}`}>{d.title}</Link>
+              &nbsp;
+              <button onClick={() => deleteClick(d.id)}>delete</button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        ""
+      )}
     </div>
   );
 }
